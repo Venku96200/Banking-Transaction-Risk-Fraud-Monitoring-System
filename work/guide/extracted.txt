@@ -1,0 +1,1056 @@
+
+--- PAGE 1 ---
+BANKING RISK ANALYTICS
+ Transaction Risk Monitoring
+& Anomaly Detection Platform
+ A portfolio-grade project designed around Corporate Risk concepts: risk
+identification, assessment, controls, monitoring, explainability, alerting,
+ review and escalation.
+ Technology: Python • FastAPI • SQL • Pandas • scikit-learn •
+ HTML/CSS/JavaScript
+ Implementation blueprint • Architecture • Database • ML • APIs •
+ Dashboard • Testing • Interview preparation
+
+
+--- PAGE 2 ---
+1. Project Overview
+Project name: Banking Transaction Risk Monitoring & Anomaly Detection Platform
+The project simulates a banking risk-monitoring environment in which a stream of customer
+transactions is analyzed for unusual behavior. The system combines deterministic risk controls with
+machine-learning anomaly detection, converts the signals into an interpretable 0–100 risk score,
+creates alerts, and gives a risk analyst a dashboard for investigation, review and escalation.
+Important: this is an educational/synthetic-data project. It is not an AML/compliance system, does not use
+real customer data, and should not be presented as production financial-crime software.
+Why this is a strong CRDP project
+• Maps directly to risk identification, assessment, monitoring, reporting, controls and escalation.
+ 
+• Uses your existing Python, SQL, FastAPI, JavaScript and ML skills rather than requiring a completely
+ new stack.
+• Demonstrates that you understand why risk systems need both rules and statistical/ML signals.
+ 
+• Creates strong interview material around false positives, false negatives, explainability, thresholds,
+ controls and model monitoring.
+• Complements your existing Customer AI project instead of duplicating another generic prediction
+ problem.
+Target outcome
+Build an end-to-end application where a transaction can travel from raw data → SQL storage → feature
+engineering → rule engine + Isolation Forest → risk score → alert → analyst review →
+escalation/outcome tracking.
+2. Scope at a Glance
+Area
+MVP
+Stretch goal
+Data
+100K synthetic transactions
+1M+ records / streaming simulation
+Risk engine
+Rules + weighted score
+Configurable rules stored in SQL
+ML
+Isolation Forest
+Supervised model after labeled reviews
+Backend
+FastAPI REST API
+Authentication + role-based access
+Database
+MySQL/PostgreSQL
+Indexes, views, stored procedures
+Frontend
+HTML/CSS/JS dashboard
+Advanced charts and filters
+Workflow
+Alert → review → escalate
+Case management + SLA tracking
+Monitoring
+Alert counts + precision/recall
+Model drift + threshold monitoring
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 2 of 21
+
+
+--- PAGE 3 ---
+3. Functional Requirements
+3.1 Transaction ingestion
+• Accept transaction records through a CSV import and/or POST /transactions endpoint.
+ 
+• Validate required fields, timestamps, amount ranges and identifiers.
+ 
+• Persist valid transactions in SQL.
+ 
+• Reject malformed records with a useful validation message.
+ 
+3.2 Customer behavioral baseline
+• Calculate historical average transaction amount.
+ 
+• Calculate amount standard deviation and transaction frequency.
+ 
+• Track usual locations and devices.
+ 
+• Track typical transaction hours.
+ 
+• Use previous transactions to create behavioral features.
+ 
+3.3 Risk assessment
+• Run deterministic controls such as unusually large amount, new device, new location and rapid
+ transactions.
+• Run an Isolation Forest anomaly detector.
+ 
+• Normalize and combine rule and ML signals.
+ 
+• Generate a risk score and risk level.
+ 
+• Store the reasons that contributed to the score.
+ 
+3.4 Alert management
+• Create alerts for High and Critical transactions.
+ 
+• Allow filtering by risk level, date, customer and alert status.
+ 
+• Allow an analyst to mark an alert as reviewed, false positive or escalated.
+ 
+• Store review notes and timestamps.
+ 
+3.5 Dashboard
+• Show total transactions and alert counts.
+ 
+• Show risk distribution.
+ 
+• Show risk trends over time.
+ 
+• Show top high-risk customers/transactions.
+ 
+• Provide drill-down into transaction-level explanations.
+ 
+4. Primary User Journey
+Transaction arrives
+      |
+      v
+Validate input
+      |
+      v
+Store transaction in SQL
+      |
+      v
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 3 of 21
+
+
+--- PAGE 4 ---
+Create behavioral features
+      |
+      +----------------------+
+      |                      |
+      v                      v
+Rule-based controls     Isolation Forest
+      |                      |
+      +----------+-----------+
+                 |
+                 v
+          Risk Score Engine
+                 |
+          +------+------+
+          |             |
+        LOW/MED       HIGH/CRITICAL
+          |             |
+       Store result   Create alert
+                        |
+                        v
+                  Analyst reviews
+                        |
+             +----------+----------+
+             |                     |
+          False positive         Escalate
+             |                     |
+             +----------+----------+
+                        |
+                        v
+                 Store outcome
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 4 of 21
+
+
+--- PAGE 5 ---
+5. System Architecture
+5.1 High-level architecture
+           +---------------------------+
+           |     Synthetic / CSV Data  |
+           +-------------+-------------+
+                         |
+                         v
+           +---------------------------+
+           |     FastAPI Ingestion     |
+           | Validation + API Layer    |
+           +-------------+-------------+
+                         |
+                         v
+           +---------------------------+
+           |      MySQL / PostgreSQL   |
+           | Transactions / Customers  |
+           | Alerts / Reviews / Rules  |
+           +-------------+-------------+
+                         |
+                         v
+           +---------------------------+
+           |    Feature Engineering    |
+           | Pandas + SQL aggregations |
+           +-------------+-------------+
+                         |
+          +--------------+--------------+
+          |                             |
+          v                             v
++--------------------+       +--------------------+
+| Rule-Based Engine  |       | Isolation Forest   |
+| Explainable checks |       | Anomaly score      |
++---------+----------+       +----------+---------+
+          |                             |
+          +--------------+--------------+
+                         |
+                         v
+           +---------------------------+
+           |     Risk Score Engine     |
+           | 0-100 + level + reasons   |
+           +-------------+-------------+
+                         |
+                         v
+           +---------------------------+
+           | Alerts / Review / Escalate|
+           +-------------+-------------+
+                         |
+                         v
+           +---------------------------+
+           | HTML/CSS/JS Dashboard    |
+           | Charts + filters + cases  |
+           +---------------------------+
+5.2 Suggested project structure
+banking-risk-monitor/
+|
++-- app/
+|   +-- main.py
+|   +-- database.py
+|   +-- models.py
+|   +-- schemas.py
+|   +-- routers/
+|   |   +-- transactions.py
+|   |   +-- alerts.py
+|   |   +-- customers.py
+|   |   +-- dashboard.py
+|   +-- services/
+|       +-- feature_engineering.py
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 5 of 21
+
+
+--- PAGE 6 ---
+|       +-- rule_engine.py
+|       +-- anomaly_model.py
+|       +-- risk_scoring.py
+|       +-- alert_service.py
+|
++-- ml/
+|   +-- train.py
+|   +-- evaluate.py
+|   +-- model.pkl
+|
++-- data/
+|   +-- generate_data.py
+|   +-- transactions.csv
+|
++-- frontend/
+|   +-- index.html
+|   +-- dashboard.js
+|   +-- styles.css
+|
++-- tests/
+|   +-- test_rules.py
+|   +-- test_risk_score.py
+|   +-- test_api.py
+|
++-- requirements.txt
++-- README.md
++-- .env
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 6 of 21
+
+
+--- PAGE 7 ---
+6. Synthetic Data Design
+Generate a realistic but entirely synthetic dataset. The goal is not to mimic a real bank's confidential
+data; the goal is to create enough behavioral structure for risk analytics to be meaningful.
+6.1 Transaction schema
+Field
+Type
+Example
+Purpose
+transaction_id
+VARCHAR
+TX10291
+Unique transaction
+customer_id
+VARCHAR
+C101
+Customer relationship
+timestamp
+DATETIME
+2026-07-28 03:14
+Temporal behavior
+amount
+DECIMAL
+85000.00
+Core risk signal
+merchant_category
+VARCHAR
+Travel
+Context
+location
+VARCHAR
+Dubai
+Geographic behavior
+device_id
+VARCHAR
+D9
+Device change
+transaction_type
+VARCHAR
+Transfer
+Transaction type
+account_age_days
+INT
+720
+Customer context
+status
+VARCHAR
+SUCCESS
+Processing state
+6.2 Injected anomaly patterns
+Pattern
+How to generate
+Why it matters
+Amount spike
+5–15× personal average
+Behavioral deviation
+New device
+Use unseen device ID
+Possible account takeover signal
+New location
+Switch normal region
+Geographic anomaly
+Odd hour
+Transactions at 1–5 AM
+Temporal anomaly
+Velocity spike
+Many transactions within minutes
+Rapid activity
+Combined anomaly
+Trigger 3+ signals together
+High-confidence synthetic case
+6.3 Suggested dataset size
+• Start with 50,000–100,000 transactions for development.
+ 
+• Generate 5–10% synthetic anomalous records.
+ 
+• Keep a reproducible random seed.
+ 
+• Create a hidden ground-truth flag only for evaluation; do not feed it into the model.
+ 
+import numpy as np
+import pandas as pd
+rng = np.random.default_rng(42)
+n = 100_000
+amount = rng.lognormal(mean=7.0, sigma=0.9, size=n)
+df = pd.DataFrame({
+    "transaction_id": [f"TX{i:06d}" for i in range(n)],
+    "customer_id": rng.choice([f"C{i:04d}" for i in range(2000)], n),
+    "amount": amount.round(2),
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 7 of 21
+
+
+--- PAGE 8 ---
+    "merchant_category": rng.choice(
+        ["Grocery", "Travel", "Fuel", "Shopping", "Bills"], n
+    )
+})
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 8 of 21
+
+
+--- PAGE 9 ---
+7. Rule-Based Risk Engine
+Rules are deliberately transparent. Each rule should produce both a score contribution and a
+human-readable reason. This makes the system easier to audit and explain than a black-box prediction
+alone.
+Rule
+Condition example
+Points
+Amount anomaly
+amount > 5 × customer average
++25
+New device
+device not previously observed
++20
+New location
+location not previously observed
++20
+Unusual hour
+hour outside customer normal range
++10
+Velocity
+≥ 5 transactions within 10 minutes
++15
+High-risk combination
+3 or more signals
++10
+Example implementation
+def calculate_rule_risk(tx, profile):
+    score = 0
+    reasons = []
+    if tx.amount > 5 * profile.avg_amount:
+        score += 25
+        reasons.append("Amount is >5x customer average")
+    if tx.device_id not in profile.known_devices:
+        score += 20
+        reasons.append("New device detected")
+    if tx.location not in profile.known_locations:
+        score += 20
+        reasons.append("New location detected")
+    if tx.hour not in profile.normal_hours:
+        score += 10
+        reasons.append("Unusual transaction hour")
+    if tx.velocity_10m >= 5:
+        score += 15
+        reasons.append("High transaction velocity")
+    return min(score, 100), reasons
+Design principle: controls should be configurable
+In the first version, rules can live in Python. A stronger second version stores rule thresholds and
+weights in a risk_rules SQL table so that the risk engine can be configured without rewriting business
+logic.
+8. Machine Learning: Isolation Forest
+Isolation Forest is a strong first choice because the project is framed as anomaly detection and
+synthetic suspicious labels should not be assumed to be perfect. The model learns what
+normal-looking behavior is and identifies observations that are easier to isolate.
+8.1 Candidate features
+• log(amount)
+ 
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 9 of 21
+
+
+--- PAGE 10 ---
+• amount / customer_average
+ 
+• transaction_count_10m
+ 
+• transaction_count_24h
+ 
+• minutes_since_previous_transaction
+ 
+• distance_from_usual_location
+ 
+• new_device_flag
+ 
+• new_location_flag
+ 
+• hour_of_day
+ 
+• account_age_days
+ 
+8.2 Training outline
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+import joblib
+features = [
+    "amount_ratio",
+    "velocity_10m",
+    "velocity_24h",
+    "minutes_since_previous",
+    "new_device",
+    "new_location",
+    "account_age_days"
+]
+model = Pipeline([
+    ("scaler", StandardScaler()),
+    ("iforest", IsolationForest(
+        n_estimators=300,
+        contamination=0.05,
+        random_state=42
+    ))
+])
+model.fit(X_train[features])
+joblib.dump(model, "ml/model.pkl")
+8.3 Do not blindly treat the model output as truth
+• Calibrate the anomaly threshold against synthetic ground truth.
+ 
+• Compare alert volume at different thresholds.
+ 
+• Measure precision, recall and false-positive rate where labels are available.
+ 
+• Keep rule explanations even when the ML model is highly anomalous.
+ 
+• Document that synthetic labels do not represent real-world AML ground truth.
+ 
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 10 of 21
+
+
+--- PAGE 11 ---
+9. Combined Risk Scoring
+The core design combines interpretable controls with the ML signal. A simple first implementation is:
+final_score = 0.60 * rule_score + 0.40 * ml_score
+final_score = round(min(max(final_score, 0), 100))
+Risk levels
+Score
+Level
+Suggested action
+0–30
+LOW
+No action / normal monitoring
+31–60
+MEDIUM
+Enhanced monitoring
+61–80
+HIGH
+Generate alert / analyst review
+81–100
+CRITICAL
+Priority review / escalation
+Example response
+{
+  "transaction_id": "TX10291",
+  "risk_score": 91,
+  "risk_level": "CRITICAL",
+  "rule_score": 95,
+  "ml_score": 85,
+  "reasons": [
+    "Amount is 8.2x customer average",
+    "New device detected",
+    "New location detected",
+    "Unusual transaction hour"
+  ],
+  "recommended_action": "MANUAL_REVIEW"
+}
+Why the hybrid design is useful
+• Rules provide deterministic controls and clear reasons.
+ 
+• ML can discover unusual combinations that rules did not explicitly encode.
+ 
+• The combined score creates a single operational signal for prioritization.
+ 
+• Analysts can still inspect the underlying reasons instead of receiving only a probability.
+ 
+10. SQL Database Design
+CREATE TABLE customers (
+    customer_id VARCHAR(20) PRIMARY KEY,
+    account_age_days INT NOT NULL,
+    created_at DATETIME NOT NULL
+);
+CREATE TABLE transactions (
+    transaction_id VARCHAR(30) PRIMARY KEY,
+    customer_id VARCHAR(20) NOT NULL,
+    timestamp DATETIME NOT NULL,
+    amount DECIMAL(15,2) NOT NULL,
+    merchant_category VARCHAR(50),
+    location VARCHAR(100),
+    device_id VARCHAR(50),
+    transaction_type VARCHAR(50),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+CREATE TABLE risk_alerts (
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 11 of 21
+
+
+--- PAGE 12 ---
+    alert_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    transaction_id VARCHAR(30) NOT NULL,
+    risk_score DECIMAL(5,2) NOT NULL,
+    risk_level VARCHAR(20) NOT NULL,
+    status VARCHAR(30) DEFAULT 'OPEN',
+    reasons JSON,
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (transaction_id) REFERENCES transactions(transaction_id)
+);
+CREATE TABLE risk_reviews (
+    review_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    alert_id BIGINT NOT NULL,
+    outcome VARCHAR(30) NOT NULL,
+    notes TEXT,
+    reviewed_at DATETIME NOT NULL,
+    FOREIGN KEY (alert_id) REFERENCES risk_alerts(alert_id)
+);
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 12 of 21
+
+
+--- PAGE 13 ---
+11. FastAPI Design
+Method
+Endpoint
+Purpose
+POST
+/transactions
+Create one transaction and assess risk
+POST
+/transactions/bulk
+Upload a CSV/batch
+GET
+/transactions
+Search transactions
+GET
+/transactions/{id}
+Get transaction details
+GET
+/alerts
+List/filter risk alerts
+GET
+/alerts/{id}
+Get alert details
+PATCH
+/alerts/{id}/review
+Store analyst outcome
+PATCH
+/alerts/{id}/escalate
+Escalate an alert
+GET
+/customers/{id}/risk
+Customer risk profile
+GET
+/dashboard/summary
+Dashboard KPIs
+GET
+/dashboard/trends
+Risk trend data
+Example FastAPI route
+@router.post("/transactions")
+def create_transaction(
+    tx: TransactionCreate,
+    db: Session = Depends(get_db)
+):
+    transaction = save_transaction(db, tx)
+    features = build_features(db, transaction)
+    rule_score, reasons = calculate_rule_risk(transaction, features)
+    ml_score = anomaly_service.score(features)
+    risk = combine_scores(rule_score, ml_score)
+    alert = create_alert_if_needed(
+        db, transaction, risk, reasons
+    )
+    return {
+        "transaction_id": transaction.transaction_id,
+        "risk": risk,
+        "alert_id": alert.id if alert else None
+    }
+Validation
+• Use Pydantic schemas for request validation.
+ 
+• Reject negative transaction amounts.
+ 
+• Require valid customer and transaction identifiers.
+ 
+• Handle missing optional fields explicitly.
+ 
+• Return HTTP 4xx responses for invalid client input and 5xx only for unexpected server failures.
+ 
+12. Dashboard Design
+Recommended dashboard sections
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 13 of 21
+
+
+--- PAGE 14 ---
+Component
+What it shows
+KPI cards
+Transactions, open alerts, high-risk alerts, critical alerts
+Risk distribution
+Low/Medium/High/Critical counts
+Trend chart
+Risk alerts by day/week
+Alert table
+ID, customer, amount, score, level, status
+Filters
+Date, risk level, customer, status
+Detail panel
+Transaction + reasons + history
+Review controls
+Reviewed / False Positive / Escalate
+Suggested JavaScript flow
+async function loadDashboard() {
+    const response = await fetch("/dashboard/summary");
+    const data = await response.json();
+    document.querySelector("#total")
+        .textContent = data.total_transactions;
+    document.querySelector("#critical")
+        .textContent = data.critical_alerts;
+    renderRiskChart(data.risk_distribution);
+    renderTrendChart(data.trends);
+    renderAlertTable(data.alerts);
+}
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 14 of 21
+
+
+--- PAGE 15 ---
+13. Evaluation Strategy
+13.1 ML metrics
+Metric
+Meaning
+Why it matters
+Precision
+Of flagged cases, how many are truly
+anomalous?
+Controls alert workload
+Recall
+Of anomalous cases, how many were caught?
+Measures missed risk
+F1
+Balance of precision and recall
+Useful single summary
+False-positive rate
+Normal cases incorrectly flagged
+Important for analyst workload
+13.2 System-level metrics
+• Average API response time for transaction assessment.
+ 
+• Alert creation success rate.
+ 
+• Percentage of alerts reviewed.
+ 
+• Average time from alert creation to review.
+ 
+• Percentage of alerts escalated.
+ 
+• Daily/weekly alert volume.
+ 
+13.3 Experiment with thresholds
+Run several threshold configurations and compare alert volume against recall and precision. Do not
+choose a threshold simply because it maximizes accuracy; a risk-monitoring system must consider the
+operational cost of false positives and the consequence of missed anomalies.
+Confusion matrix interpretation
+Actually anomalous
+Actually normal
+Flagged
+TP — correctly detected
+FP — false alert
+Not flagged
+FN — missed anomaly
+TN — correctly ignored
+14. Testing Strategy
+Unit tests
+• Amount anomaly rule triggers at the intended threshold.
+ 
+• New-device rule detects unseen devices.
+ 
+• New-location rule detects unseen locations.
+ 
+• Risk score is always between 0 and 100.
+ 
+• Risk level boundaries are correct.
+ 
+• Reasons are retained for each triggered rule.
+ 
+API tests
+• POST valid transaction returns 200/201.
+ 
+• Invalid amount returns 422.
+ 
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 15 of 21
+
+
+--- PAGE 16 ---
+• Unknown customer is handled correctly.
+ 
+• High-risk transaction creates an alert.
+ 
+• Review endpoint changes alert status and stores notes.
+ 
+def test_risk_score_is_bounded():
+    score = combine_scores(120, 110)
+    assert 0 <= score <= 100
+def test_high_risk_creates_alert(client):
+    response = client.post(
+        "/transactions",
+        json=high_risk_transaction
+    )
+    assert response.status_code in (200, 201)
+    assert response.json()["alert_id"] is not None
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 16 of 21
+
+
+--- PAGE 17 ---
+15. Security & Responsible Design
+Because the domain is banking, security and responsible data handling should be part of the project
+story even if the application uses synthetic data.
+• Never commit API keys, database passwords or secrets; use environment variables.
+ 
+• Use parameterized queries/ORM operations to reduce SQL injection risk.
+ 
+• Validate and sanitize uploaded files.
+ 
+• Do not expose unnecessary customer fields in API responses.
+ 
+• Use authentication and role-based access control as a stretch feature.
+ 
+• Log security-relevant events without logging sensitive credentials.
+ 
+• Use synthetic data only; never upload real customer information to the repository.
+ 
+16. Known Limitations
+• Synthetic transaction behavior does not represent real banking behavior.
+ 
+• Isolation Forest is an anomaly detector, not an AML decision engine.
+ 
+• Risk scores are project-defined and have no regulatory meaning.
+ 
+• The project does not establish that a transaction is criminal or fraudulent.
+ 
+• Real production systems require governance, validation, model risk management, privacy controls
+ and domain expertise.
+17. Stretch Features
+Priority
+Feature
+Value
+High
+Configurable SQL risk rules
+Shows controls/governance thinking
+High
+Analyst case management
+Shows operational workflow
+High
+Customer risk trajectory
+Shows monitoring over time
+Medium
+SHAP for supervised model
+Adds explainability
+Medium
+Role-based access
+Adds security
+Medium
+Docker + CI/CD
+Adds engineering maturity
+Medium
+Model drift monitoring
+Adds model-risk awareness
+Advanced
+Streaming transaction simulation
+Near-real-time architecture
+Advanced
+Graph/network analysis
+Links customers/devices/accounts
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 17 of 21
+
+
+--- PAGE 18 ---
+18. 10-Day Implementation Plan
+Day
+Goal
+Deliverable
+1
+Project setup + schema
+Repo, environment, SQL schema
+2
+Synthetic dataset
+50K–100K transaction generator
+3
+Behavioral features
+Customer baselines + anomaly features
+4
+Rule engine
+Rules, scores, explanations
+5
+Isolation Forest
+Training + evaluation + saved model
+6
+Risk service
+Hybrid scoring + alert creation
+7
+FastAPI
+Core endpoints + validation
+8
+Dashboard
+KPIs, charts, alert table
+9
+Testing
+Pytest + edge cases + API tests
+10
+Polish
+README, architecture, screenshots, resume bullets
+Suggested daily priorities
+• Build the backend/data path before spending time on visual styling.
+ 
+• Commit to GitHub every meaningful milestone.
+ 
+• Keep a small set of known test transactions for demonstrations.
+ 
+• Document design decisions as you go so interview preparation becomes easier.
+ 
+• Do not add GenAI unless the core system is already complete.
+ 
+19. Interview Preparation
+Why did you use Isolation Forest?
+Answer: Because the problem is anomaly detection and labels may be incomplete or synthetic.
+Isolation Forest can learn patterns of normal behavior and identify observations that are easier to
+isolate.
+Why combine rules and ML?
+Answer: Rules provide deterministic, auditable controls and explanations. ML adds the ability to detect
+unusual combinations not explicitly encoded by rules.
+Why not use accuracy?
+Answer: With imbalanced risk events, accuracy can be misleading. Precision, recall, false-positive rate
+and the operational alert burden are more informative.
+What is a false positive here?
+Answer: A normal transaction incorrectly flagged as risky. Too many false positives can overwhelm
+analysts and reduce trust in the monitoring system.
+What is a false negative?
+Answer: A genuinely anomalous transaction that the system fails to flag. In risk monitoring, missed
+cases can be particularly costly.
+How did you generate your data?
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 18 of 21
+
+
+--- PAGE 19 ---
+Answer: I generated synthetic customer and transaction behavior with reproducible randomness and
+injected controlled anomaly patterns such as amount spikes, new devices, new locations and velocity
+bursts.
+Why FastAPI?
+Answer: It provides typed request validation through Pydantic, clean REST endpoints and integrates
+naturally with Python-based ML services.
+Why SQL?
+Answer: The project needs persistent transactional records, alerts, reviews, relationships and
+aggregations. SQL also supports useful analytical queries for monitoring.
+How would you improve it in production?
+Answer: I would add authentication, authorization, stronger data governance, configurable controls,
+model monitoring, human-in-the-loop review, audit trails, scalability and formal model validation.
+Could the risk score prove fraud?
+Answer: No. It is a prioritization signal. A high-risk score means the case deserves attention; it does not
+establish criminal activity.
+20. Resume Positioning
+After implementation and testing, you can describe the project as a risk-analytics system rather than
+simply an ML model.
+Suggested resume title: Banking Transaction Risk
+Monitoring & Anomaly Detection
+• Developed a Python/FastAPI risk-monitoring platform to analyze 100K+ synthetic banking
+ transactions and identify potentially suspicious activity.
+• Designed an interpretable rule-based risk engine using transaction, device, location, velocity and
+ behavioral deviations to generate 0–100 risk scores.
+• Implemented Isolation Forest anomaly detection and combined ML signals with deterministic
+ controls to classify transactions into Low, Medium, High and Critical risk levels.
+• Built a SQL-backed dashboard and analyst workflow for alert filtering, investigation, review,
+ false-positive handling and escalation.
+Only claim metrics you actually achieve. Replace 100K+, precision, recall, latency and similar numbers
+with measured results from your final implementation.
+21. GitHub README Checklist
+• Problem statement
+ 
+• Why risk monitoring matters
+ 
+• Architecture diagram
+ 
+• Tech stack
+ 
+• Dataset generation methodology
+ 
+• Database schema
+ 
+• Rule engine
+ 
+• ML approach
+ 
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 19 of 21
+
+
+--- PAGE 20 ---
+• Risk scoring formula
+ 
+• API documentation
+ 
+• Dashboard screenshots
+ 
+• Evaluation metrics
+ 
+• Testing
+ 
+• Limitations and responsible-use note
+ 
+• How to run locally
+ 
+22. Deployment Roadmap
+• Local: FastAPI + MySQL/PostgreSQL + static frontend.
+ 
+• Containerize: Docker for API and database.
+ 
+• Deploy API and frontend to a cloud platform.
+ 
+• Use managed SQL in deployment.
+ 
+• Store secrets using environment variables / secret management.
+ 
+• Add CI pipeline to run pytest on every push.
+ 
+• Add health endpoint such as GET /health.
+ 
+GET /health
+{
+    "status": "ok",
+    "model_loaded": true,
+    "database": "connected"
+}
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 20 of 21
+
+
+--- PAGE 21 ---
+23. Final Build Target
+A successful final demo should take roughly this path:
+1. Open dashboard
+2. Show overall transaction/risk KPIs
+3. Upload or create a transaction
+4. System validates and stores it
+5. Feature service builds customer-behavior features
+6. Rule engine produces explainable control signals
+7. Isolation Forest produces anomaly signal
+8. Hybrid risk score is generated
+9. High-risk case appears in alert queue
+10. Analyst opens the case
+11. Reasons and transaction context are displayed
+12. Analyst marks reviewed / false positive / escalated
+13. Dashboard updates risk and workflow statistics
+24. Definition of Done
+☐ 100K+ reproducible synthetic transactions can be generated.
+ 
+☐ Transactions persist correctly in SQL.
+ 
+☐ At least five risk rules are implemented and tested.
+ 
+☐ Isolation Forest is trained and evaluated.
+ 
+☐ Hybrid risk score is bounded between 0 and 100.
+ 
+☐ Risk levels are deterministic and documented.
+ 
+☐ High/Critical alerts are persisted.
+ 
+☐ Analyst review and escalation are persisted.
+ 
+☐ FastAPI exposes the core workflow.
+ 
+☐ Dashboard displays KPIs, trends and alerts.
+ 
+☐ Pytest covers core rules and API endpoints.
+ 
+☐ README explains architecture, limitations and setup.
+ 
+☐ Repository contains no secrets or real customer data.
+ 
+25. Key Takeaway
+The strongest version of this project is not the one with the fanciest model. It is the one that demonstrates
+a complete risk-management workflow: identify → assess → explain → monitor → alert → review → escalate
+→ measure. That framing turns your existing Python/ML/SQL/FastAPI knowledge into a project that is much
+easier to connect to a Corporate Risk internship during interviews.
+Project guide prepared for portfolio development. All banking data and risk thresholds in this document are illustrative.
+Banking Transaction Risk Monitoring & Anomaly Detection
+Page 21 of 21
+
